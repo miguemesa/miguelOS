@@ -6,10 +6,14 @@ namespace App\Core;
 
 abstract class Controller
 {
-    protected function view(string $view, array $data = []): Response
-    {
+    protected function view(
+        string $view,
+        array $data = [],
+        int $status = 200
+    ): Response {
         return Response::html(
-            View::render($view, $data)
+            View::render($view, $data),
+            $status
         );
     }
 
