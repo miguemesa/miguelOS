@@ -1,0 +1,15 @@
+{
+    "name": "miguelmesa/miguelos",
+    "description": "Sistema personal de organización",
+    "type": "project",
+
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
