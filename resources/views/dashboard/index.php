@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Support\ProjectPresenter;
 
 $statusLabels = [
     'idea' => 'Idea',
@@ -400,6 +401,12 @@ $hasDashboardOptions = $hasCriteria
         <?php foreach ($projects as $project): ?>
 
             <?php
+            $deadline = ProjectPresenter::deadline(
+                $project
+            );
+            ?>
+
+            <?php
             $statusLabel = $statusLabels[$project->status]
                 ?? $project->status;
 
@@ -429,37 +436,37 @@ $hasDashboardOptions = $hasCriteria
 
                         <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
 
-                            <span
-                                    class="badge <?= htmlspecialchars(
-                                        $statusClass,
-                                        ENT_QUOTES,
-                                        'UTF-8'
-                                    ) ?>"
-                            >
-                                <?= htmlspecialchars(
-                                    $statusLabel,
-                                    ENT_QUOTES,
-                                    'UTF-8'
-                                ) ?>
-                            </span>
+                <span
+                        class="badge <?= htmlspecialchars(
+                            $statusClass,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+                >
+                    <?= htmlspecialchars(
+                        $statusLabel,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </span>
 
                             <span
                                     class="small text-secondary"
                                     aria-label="Prioridad <?= (int) $project->priority ?> de 5"
                                     title="Prioridad <?= (int) $project->priority ?> de 5"
                             >
-                                <?= str_repeat(
-                                    '●',
-                                    (int) $project->priority
-                                ) ?>
+                    <?= str_repeat(
+                        '●',
+                        (int) $project->priority
+                    ) ?>
 
-                                <span class="opacity-25">
-                                    <?= str_repeat(
-                                        '○',
-                                        5 - (int) $project->priority
-                                    ) ?>
-                                </span>
-                            </span>
+                    <span class="opacity-25">
+                        <?= str_repeat(
+                            '○',
+                            5 - (int) $project->priority
+                        ) ?>
+                    </span>
+                </span>
 
                         </div>
 
@@ -485,6 +492,66 @@ $hasDashboardOptions = $hasCriteria
                                 'UTF-8'
                             ) ?>
                         </p>
+
+                        <div class="mt-2 mb-3">
+
+                <span
+                        class="badge <?= htmlspecialchars(
+                            $deadline['badge_class'],
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+                >
+                    <?= htmlspecialchars(
+                        $deadline['label'],
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </span>
+
+                            <?php if ($project->due_date !== null): ?>
+
+                                <div class="small text-secondary mt-2">
+
+                        <span aria-hidden="true">
+                            📅
+                        </span>
+
+                                    <span class="visually-hidden">
+                            Fecha límite:
+                        </span>
+
+                                    <?= htmlspecialchars(
+                                        ProjectPresenter::formatDate(
+                                            $project->due_date
+                                        ),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+
+                                </div>
+
+                            <?php endif; ?>
+
+                            <?php if ($project->start_date !== null): ?>
+
+                                <div class="small text-secondary mt-1">
+
+                                    Inicio:
+
+                                    <?= htmlspecialchars(
+                                        ProjectPresenter::formatDate(
+                                            $project->start_date
+                                        ),
+                                        ENT_QUOTES,
+                                        'UTF-8'
+                                    ) ?>
+
+                                </div>
+
+                            <?php endif; ?>
+
+                        </div>
 
                         <div class="d-flex gap-2 pt-3 border-top">
 
