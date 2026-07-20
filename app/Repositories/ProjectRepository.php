@@ -52,6 +52,70 @@ final class ProjectRepository
         );
     }
 
+    public function filter(
+        ?string $query = null,
+        ?string $status = null,
+        ?int $priority = null
+    ): array {
+        $conditions = [];
+        $parameters = [];
+
+        $query = trim((string) $query);
+        $status = trim((string) $status);
+
+        if ($query !== '') {
+            $conditions[] = "
+            (
+                name LIKE :name_query
+                OR description LIKE :description_query
+            )
+        ";
+
+            $term = '%' . $query . '%';
+
+            $parameters['name_query'] = $term;
+            $parameters['description_query'] = $term;
+        }
+
+        if ($status !== '') {
+            $conditions[] = 'status = :status';
+            $parameters['status'] = $status;
+        }
+
+        if ($priority !== null) {
+            $conditions[] = 'priority = :priority';
+            $parameters['priority'] = $priority;
+        }
+
+        $sql = "
+        SELECT *
+        FROM projects
+    ";
+
+        if ($conditions !== []) {
+            $sql .= "
+            WHERE " . implode(
+                    ' AND ',
+                    $conditions
+                );
+        }
+
+        $sql .= "
+        ORDER BY priority,
+                 due_date
+    ";
+
+        $rows = Database::fetchAll(
+            $sql,
+            $parameters
+        );
+
+        return Hydrator::collection(
+            Project::class,
+            $rows
+        );
+    }
+
     public function create(Project $project): int
     {
         Database::execute(

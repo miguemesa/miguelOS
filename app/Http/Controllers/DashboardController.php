@@ -23,7 +23,23 @@ final class DashboardController extends Controller
             (string) $request->query('q', '')
         );
 
-        $projects = $this->service->projects($query);
+        $status = trim(
+            (string) $request->query('status', '')
+        );
+
+        $priorityValue = trim(
+            (string) $request->query('priority', '')
+        );
+
+        $priority = $priorityValue !== ''
+            ? (int) $priorityValue
+            : null;
+
+        $projects = $this->service->projects(
+            $query,
+            $status,
+            $priority
+        );
 
         return $this->view(
             'dashboard/index',
@@ -38,6 +54,8 @@ final class DashboardController extends Controller
                 ),
                 'projects' => $projects,
                 'query' => $query,
+                'selectedStatus' => $status,
+                'selectedPriority' => $priority,
             ]
         );
     }

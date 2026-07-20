@@ -22,7 +22,21 @@ $query = trim(
     (string) ($query ?? '')
 );
 
+$selectedStatus = trim(
+    (string) ($selectedStatus ?? '')
+);
+
+$selectedPriority = isset($selectedPriority)
+&& $selectedPriority !== null
+    ? (int) $selectedPriority
+    : null;
+
 $hasSearch = $query !== '';
+
+$hasFilters = $selectedStatus !== ''
+    || $selectedPriority !== null;
+
+$hasCriteria = $hasSearch || $hasFilters;
 ?>
 
 <div class="mb-4">
@@ -41,16 +55,27 @@ $hasSearch = $query !== '';
 
             <p class="lead text-secondary mb-0">
 
-                <?php if ($hasSearch): ?>
+                <?php if ($hasCriteria): ?>
 
-                    Resultados para
-                    <strong>
-                        “<?= htmlspecialchars(
-                            $query,
-                            ENT_QUOTES,
-                            'UTF-8'
-                        ) ?>”
-                    </strong>
+                    <?= count($projects) ?>
+
+                    <?= count($projects) === 1
+                        ? 'proyecto encontrado'
+                        : 'proyectos encontrados' ?>
+
+                    <?php if ($hasSearch): ?>
+
+                        para
+
+                        <strong>
+                            “<?= htmlspecialchars(
+                                $query,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>”
+                        </strong>
+
+                    <?php endif; ?>
 
                 <?php else: ?>
 
@@ -65,17 +90,17 @@ $hasSearch = $query !== '';
         <form
                 method="get"
                 action="/"
-                class="d-flex gap-2"
+                class="row g-2 align-items-end"
                 role="search"
         >
 
-            <div>
+            <div class="col-12 col-md">
 
                 <label
                         for="project-search"
-                        class="visually-hidden"
+                        class="form-label small text-secondary"
                 >
-                    Buscar proyectos
+                    Buscar
                 </label>
 
                 <input
@@ -88,27 +113,115 @@ $hasSearch = $query !== '';
                             ENT_QUOTES,
                             'UTF-8'
                         ) ?>"
-                        placeholder="Buscar proyectos"
+                        placeholder="Nombre o descripción"
                         maxlength="150"
                 >
 
             </div>
 
-            <button
-                    type="submit"
-                    class="btn btn-primary"
-            >
-                Buscar
-            </button>
+            <div class="col-12 col-sm-6 col-md-auto">
 
-            <?php if ($hasSearch): ?>
-
-                <a
-                        href="/"
-                        class="btn btn-outline-secondary"
+                <label
+                        for="project-status"
+                        class="form-label small text-secondary"
                 >
-                    Limpiar
-                </a>
+                    Estado
+                </label>
+
+                <select
+                        class="form-select"
+                        id="project-status"
+                        name="status"
+                >
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <?php foreach ($statusLabels as $value => $label): ?>
+
+                        <option
+                                value="<?= htmlspecialchars(
+                                    $value,
+                                    ENT_QUOTES,
+                                    'UTF-8'
+                                ) ?>"
+                            <?= $selectedStatus === $value
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= htmlspecialchars(
+                                $label,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-auto">
+
+                <label
+                        for="project-priority"
+                        class="form-label small text-secondary"
+                >
+                    Prioridad
+                </label>
+
+                <select
+                        class="form-select"
+                        id="project-priority"
+                        name="priority"
+                >
+
+                    <option value="">
+                        Todas
+                    </option>
+
+                    <?php for ($priority = 1; $priority <= 5; $priority++): ?>
+
+                        <option
+                                value="<?= $priority ?>"
+                            <?= $selectedPriority === $priority
+                                ? 'selected'
+                                : '' ?>
+                        >
+                            <?= $priority ?>
+                        </option>
+
+                    <?php endfor; ?>
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-md-auto">
+
+                <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                >
+                    Aplicar
+                </button>
+
+            </div>
+
+            <?php if ($hasCriteria): ?>
+
+                <div class="col-12 col-md-auto">
+
+                    <a
+                            href="/"
+                            class="btn btn-outline-secondary w-100"
+                    >
+                        Limpiar
+                    </a>
+
+                </div>
 
             <?php endif; ?>
 
@@ -124,28 +237,21 @@ $hasSearch = $query !== '';
 
         <div class="card-body py-5 text-center">
 
-            <?php if ($hasSearch): ?>
+            <?php if ($hasCriteria): ?>
 
                 <h2 class="h4">
                     No encontramos proyectos
                 </h2>
 
                 <p class="text-secondary mb-4">
-                    No hay coincidencias para
-                    <strong>
-                        “<?= htmlspecialchars(
-                            $query,
-                            ENT_QUOTES,
-                            'UTF-8'
-                        ) ?>”
-                    </strong>.
+                    Ningún proyecto coincide con los criterios seleccionados.
                 </p>
 
                 <a
                         href="/"
                         class="btn btn-outline-primary"
                 >
-                    Ver todos los proyectos
+                    Limpiar búsqueda y filtros
                 </a>
 
             <?php else: ?>

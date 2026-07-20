@@ -15,15 +15,45 @@ final class ProjectService
     ) {
     }
 
-    public function projects(?string $query = null): array
-    {
+    public function projects(
+        ?string $query = null,
+        ?string $status = null,
+        ?int $priority = null
+    ): array {
         $query = trim((string) $query);
+        $status = trim((string) $status);
 
-        if ($query === '') {
-            return $this->repository->all();
+        $allowedStatuses = [
+            'idea',
+            'active',
+            'paused',
+            'completed',
+            'cancelled',
+        ];
+
+        if (
+            $status !== ''
+            && !in_array(
+                $status,
+                $allowedStatuses,
+                true
+            )
+        ) {
+            $status = '';
         }
 
-        return $this->repository->search($query);
+        if (
+            $priority !== null
+            && ($priority < 1 || $priority > 5)
+        ) {
+            $priority = null;
+        }
+
+        return $this->repository->filter(
+            $query !== '' ? $query : null,
+            $status !== '' ? $status : null,
+            $priority
+        );
     }
 
     public function project(int $id): ?Project
