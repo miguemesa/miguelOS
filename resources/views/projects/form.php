@@ -88,7 +88,7 @@ $cancelUrl = $isEditing
                 class="form-control"
                 id="name"
                 name="name"
-                maxlength="150"
+                maxlength="180"
                 required
                 value="<?= htmlspecialchars(
                     (string) ($old['name'] ?? ''),
@@ -173,19 +173,19 @@ $cancelUrl = $isEditing
             </option>
 
             <option
-                    value="cancelled"
-                <?= $selectedStatus === 'cancelled'
+                    value="archived"
+                <?= $selectedStatus === 'archived'
                     ? 'selected'
                     : '' ?>
             >
-                Cancelado
+                Archivado
             </option>
 
         </select>
 
     </div>
 
-    <div class="mb-4">
+    <div class="mb-3">
 
         <label for="priority" class="form-label">
             Prioridad
@@ -211,6 +211,64 @@ $cancelUrl = $isEditing
             <?php endfor; ?>
 
         </select>
+
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-6">
+
+            <label
+                    for="start_date"
+                    class="form-label"
+            >
+                Fecha de inicio
+            </label>
+
+            <input
+                    type="date"
+                    class="form-control"
+                    id="start_date"
+                    name="start_date"
+                    value="<?= htmlspecialchars(
+                        (string) ($old['start_date'] ?? ''),
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>"
+            >
+
+            <div class="form-text">
+                Puede dejarse vacía.
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-6">
+
+            <label
+                    for="due_date"
+                    class="form-label"
+            >
+                Fecha límite
+            </label>
+
+            <input
+                    type="date"
+                    class="form-control"
+                    id="due_date"
+                    name="due_date"
+                    value="<?= htmlspecialchars(
+                        (string) ($old['due_date'] ?? ''),
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>"
+            >
+
+            <div class="form-text">
+                Debe ser igual o posterior a la fecha de inicio.
+            </div>
+
+        </div>
 
     </div>
 

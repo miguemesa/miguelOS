@@ -2,12 +2,51 @@
 
 declare(strict_types=1);
 
+function formatProjectDate(?string $value): string
+{
+    if ($value === null || trim($value) === '') {
+        return 'Sin definir';
+    }
+
+    $date = DateTimeImmutable::createFromFormat(
+        'Y-m-d',
+        $value
+    );
+
+    if ($date === false) {
+        return $value;
+    }
+
+    $months = [
+        1 => 'ene',
+        2 => 'feb',
+        3 => 'mar',
+        4 => 'abr',
+        5 => 'may',
+        6 => 'jun',
+        7 => 'jul',
+        8 => 'ago',
+        9 => 'sep',
+        10 => 'oct',
+        11 => 'nov',
+        12 => 'dic',
+    ];
+
+    return sprintf(
+        '%d %s %d',
+        (int)$date->format('j'),
+        $months[(int)$date->format('n')],
+        (int)$date->format('Y')
+    );
+}
+
+
 $statusLabels = [
     'idea' => 'Idea',
     'active' => 'Activo',
     'paused' => 'Pausado',
     'completed' => 'Completado',
-    'cancelled' => 'Cancelado',
+    'archived' => 'Archivado',
 ];
 
 $statusLabel = $statusLabels[$project->status]
@@ -66,7 +105,7 @@ $statusLabel = $statusLabels[$project->status]
         </form>
 
     </div>
-    
+
 </div>
 
 <hr class="mb-4">
@@ -138,6 +177,34 @@ $statusLabel = $statusLabels[$project->status]
 
                     <dd class="mb-3">
                         <?= (int) $project->priority ?>
+                    </dd>
+
+                    <dt class="text-secondary fw-normal">
+                        Fecha de inicio
+                    </dt>
+
+                    <dd class="mb-3">
+                        <?= htmlspecialchars(
+                            formatProjectDate(
+                                $project->start_date
+                            ),
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
+                    </dd>
+
+                    <dt class="text-secondary fw-normal">
+                        Fecha límite
+                    </dt>
+
+                    <dd class="mb-3">
+                        <?= htmlspecialchars(
+                            formatProjectDate(
+                                $project->due_date
+                            ),
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>
                     </dd>
 
                     <dt class="text-secondary fw-normal">

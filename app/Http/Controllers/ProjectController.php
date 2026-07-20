@@ -92,6 +92,8 @@ final class ProjectController extends Controller
                     'description' => $project->description ?? '',
                     'status' => $project->status,
                     'priority' => $project->priority,
+                    'start_date' => $project->start_date ?? '',
+                    'due_date' => $project->due_date ?? '',
                 ],
             ]
         );
@@ -168,6 +170,14 @@ final class ProjectController extends Controller
                 'priority',
                 3
             ),
+            'start_date' => $request->input(
+                'start_date',
+                ''
+            ),
+            'due_date' => $request->input(
+                'due_date',
+                ''
+            ),
         ];
     }
 
@@ -178,6 +188,8 @@ final class ProjectController extends Controller
             'description' => '',
             'status' => 'idea',
             'priority' => 3,
+            'start_date' => '',
+            'due_date' => '',
         ];
     }
 

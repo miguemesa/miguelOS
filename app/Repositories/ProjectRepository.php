@@ -156,26 +156,32 @@ final class ProjectRepository
     {
         Database::execute(
             "
-            INSERT INTO projects (
-                name,
-                slug,
-                description,
-                status,
-                priority
-            ) VALUES (
-                :name,
-                :slug,
-                :description,
-                :status,
-                :priority
-            )
-            ",
+        INSERT INTO projects (
+            name,
+            slug,
+            description,
+            status,
+            priority,
+            start_date,
+            due_date
+        ) VALUES (
+            :name,
+            :slug,
+            :description,
+            :status,
+            :priority,
+            :start_date,
+            :due_date
+        )
+        ",
             [
                 'name' => $project->name,
                 'slug' => $project->slug,
                 'description' => $project->description,
                 'status' => $project->status,
                 'priority' => $project->priority,
+                'start_date' => $project->start_date,
+                'due_date' => $project->due_date,
             ]
         );
 
@@ -251,7 +257,9 @@ final class ProjectRepository
             slug = :slug,
             description = :description,
             status = :status,
-            priority = :priority
+            priority = :priority,
+            start_date = :start_date,
+            due_date = :due_date
         WHERE id = :id
         ",
             [
@@ -261,6 +269,8 @@ final class ProjectRepository
                 'description' => $project->description,
                 'status' => $project->status,
                 'priority' => $project->priority,
+                'start_date' => $project->start_date,
+                'due_date' => $project->due_date,
             ]
         );
 

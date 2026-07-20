@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
+use DateTimeImmutable;
 use InvalidArgumentException;
 
 final class ProjectService
@@ -152,12 +153,22 @@ final class ProjectService
             (string) ($data['description'] ?? '')
         );
 
-        $status = (string) (
-            $data['status'] ?? 'idea'
+        $status = trim(
+            (string) ($data['status'] ?? 'idea')
         );
 
         $priority = (int) (
             $data['priority'] ?? 3
+        );
+
+        $startDate = $this->normalizeDate(
+            $data['start_date'] ?? null,
+            'La fecha de inicio no es válida.'
+        );
+
+        $dueDate = $this->normalizeDate(
+            $data['due_date'] ?? null,
+            'La fecha límite no es válida.'
         );
 
         if ($name === '') {
@@ -196,6 +207,16 @@ final class ProjectService
             );
         }
 
+        if (
+            $startDate !== null
+            && $dueDate !== null
+            && $dueDate < $startDate
+        ) {
+            throw new InvalidArgumentException(
+                'La fecha límite no puede ser anterior a la fecha de inicio.'
+            );
+        }
+
         $project->name = $name;
 
         $project->description = $description !== ''
@@ -204,6 +225,46 @@ final class ProjectService
 
         $project->status = $status;
         $project->priority = $priority;
+        $project->start_date = $startDate;
+        $project->due_date = $dueDate;
+    }
+
+    private function normalizeDate(
+        mixed $value,
+        string $errorMessage
+    ): ?string {
+        $value = trim(
+            (string) $value
+        );
+
+        if ($value === '') {
+            return null;
+        }
+
+        $date = DateTimeImmutable::createFromFormat(
+            '!Y-m-d',
+            $value
+        );
+
+        $errors = DateTimeImmutable::getLastErrors();
+
+        $hasErrors = is_array($errors)
+            && (
+                $errors['warning_count'] > 0
+                || $errors['error_count'] > 0
+            );
+
+        if (
+            $date === false
+            || $hasErrors
+            || $date->format('Y-m-d') !== $value
+        ) {
+            throw new InvalidArgumentException(
+                $errorMessage
+            );
+        }
+
+        return $date->format('Y-m-d');
     }
 
     private function uniqueSlug(
