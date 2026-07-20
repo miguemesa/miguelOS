@@ -18,7 +18,9 @@ final class ProjectService
     public function projects(
         ?string $query = null,
         ?string $status = null,
-        ?int $priority = null
+        ?int $priority = null,
+        string $sort = 'priority',
+        string $direction = 'asc'
     ): array {
         $query = trim((string) $query);
         $status = trim((string) $status);
@@ -28,7 +30,7 @@ final class ProjectService
             'active',
             'paused',
             'completed',
-            'cancelled',
+            'archived',
         ];
 
         if (
@@ -49,10 +51,34 @@ final class ProjectService
             $priority = null;
         }
 
+        $allowedSorts = [
+            'priority',
+            'name',
+            'due_date',
+            'created_at',
+            'updated_at',
+        ];
+
+        if (!in_array($sort, $allowedSorts, true)) {
+            $sort = 'priority';
+        }
+
+        $direction = strtolower($direction);
+
+        if (!in_array(
+            $direction,
+            ['asc', 'desc'],
+            true
+        )) {
+            $direction = 'asc';
+        }
+
         return $this->repository->filter(
             $query !== '' ? $query : null,
             $status !== '' ? $status : null,
-            $priority
+            $priority,
+            $sort,
+            $direction
         );
     }
 
@@ -140,9 +166,9 @@ final class ProjectService
             );
         }
 
-        if (mb_strlen($name) > 150) {
+        if (mb_strlen($name) > 180) {
             throw new InvalidArgumentException(
-                'El nombre no puede superar los 150 caracteres.'
+                'El nombre no puede superar los 180 caracteres.'
             );
         }
 
@@ -151,7 +177,7 @@ final class ProjectService
             'active',
             'paused',
             'completed',
-            'cancelled',
+            'archived',
         ];
 
         if (!in_array(

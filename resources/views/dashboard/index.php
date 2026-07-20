@@ -7,7 +7,7 @@ $statusLabels = [
     'active' => 'Activo',
     'paused' => 'Pausado',
     'completed' => 'Completado',
-    'cancelled' => 'Cancelado',
+    'archived' => 'Archivado',
 ];
 
 $statusClasses = [
@@ -15,7 +15,7 @@ $statusClasses = [
     'active' => 'text-bg-success',
     'paused' => 'text-bg-warning',
     'completed' => 'text-bg-primary',
-    'cancelled' => 'text-bg-dark',
+    'archived' => 'text-bg-dark',
 ];
 
 $query = trim(
@@ -31,12 +31,27 @@ $selectedPriority = isset($selectedPriority)
     ? (int) $selectedPriority
     : null;
 
+$selectedSort = (string) (
+    $selectedSort ?? 'priority'
+);
+
+$selectedDirection = (string) (
+    $selectedDirection ?? 'asc'
+);
+
 $hasSearch = $query !== '';
 
 $hasFilters = $selectedStatus !== ''
     || $selectedPriority !== null;
 
 $hasCriteria = $hasSearch || $hasFilters;
+
+$hasCustomOrder = $selectedSort !== 'priority'
+    || $selectedDirection !== 'asc';
+
+$hasDashboardOptions = $hasCriteria
+    || $hasCustomOrder;
+
 ?>
 
 <div class="mb-4">
@@ -114,7 +129,7 @@ $hasCriteria = $hasSearch || $hasFilters;
                             'UTF-8'
                         ) ?>"
                         placeholder="Nombre o descripción"
-                        maxlength="150"
+                        maxlength="180"
                 >
 
             </div>
@@ -199,6 +214,107 @@ $hasCriteria = $hasSearch || $hasFilters;
 
             </div>
 
+            <div class="col-12 col-sm-6 col-md-auto">
+
+                <label
+                        for="project-sort"
+                        class="form-label small text-secondary"
+                >
+                    Ordenar por
+                </label>
+
+                <select
+                        class="form-select"
+                        id="project-sort"
+                        name="sort"
+                >
+
+                    <option
+                            value="priority"
+                        <?= $selectedSort === 'priority'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Prioridad
+                    </option>
+
+                    <option
+                            value="name"
+                        <?= $selectedSort === 'name'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Nombre
+                    </option>
+
+                    <option
+                            value="due_date"
+                        <?= $selectedSort === 'due_date'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Fecha límite
+                    </option>
+
+                    <option
+                            value="created_at"
+                        <?= $selectedSort === 'created_at'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Fecha de creación
+                    </option>
+
+                    <option
+                            value="updated_at"
+                        <?= $selectedSort === 'updated_at'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Última actualización
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-auto">
+
+                <label
+                        for="project-direction"
+                        class="form-label small text-secondary"
+                >
+                    Dirección
+                </label>
+
+                <select
+                        class="form-select"
+                        id="project-direction"
+                        name="direction"
+                >
+
+                    <option
+                            value="asc"
+                        <?= $selectedDirection === 'asc'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Ascendente
+                    </option>
+
+                    <option
+                            value="desc"
+                        <?= $selectedDirection === 'desc'
+                            ? 'selected'
+                            : '' ?>
+                    >
+                        Descendente
+                    </option>
+
+                </select>
+
+            </div>
+
             <div class="col-12 col-md-auto">
 
                 <button
@@ -210,7 +326,7 @@ $hasCriteria = $hasSearch || $hasFilters;
 
             </div>
 
-            <?php if ($hasCriteria): ?>
+            <?php if ($hasDashboardOptions): ?>
 
                 <div class="col-12 col-md-auto">
 

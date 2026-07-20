@@ -55,7 +55,9 @@ final class ProjectRepository
     public function filter(
         ?string $query = null,
         ?string $status = null,
-        ?int $priority = null
+        ?int $priority = null,
+        string $sort = 'priority',
+        string $direction = 'asc'
     ): array {
         $conditions = [];
         $parameters = [];
@@ -87,6 +89,21 @@ final class ProjectRepository
             $parameters['priority'] = $priority;
         }
 
+        $allowedSorts = [
+            'priority' => 'priority',
+            'name' => 'name',
+            'due_date' => 'due_date',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+
+        $sortColumn = $allowedSorts[$sort]
+            ?? 'priority';
+
+        $direction = strtolower($direction) === 'desc'
+            ? 'DESC'
+            : 'ASC';
+
         $sql = "
         SELECT *
         FROM projects
@@ -100,10 +117,29 @@ final class ProjectRepository
                 );
         }
 
-        $sql .= "
-        ORDER BY priority,
-                 due_date
-    ";
+        if ($sortColumn === 'due_date') {
+            $sql .= "
+            ORDER BY
+                due_date IS NULL,
+                due_date {$direction},
+                priority ASC,
+                name ASC
+        ";
+        } elseif ($sortColumn === 'priority') {
+            $sql .= "
+            ORDER BY
+                priority {$direction},
+                due_date IS NULL,
+                due_date ASC,
+                name ASC
+        ";
+        } else {
+            $sql .= "
+            ORDER BY
+                {$sortColumn} {$direction},
+                name ASC
+        ";
+        }
 
         $rows = Database::fetchAll(
             $sql,

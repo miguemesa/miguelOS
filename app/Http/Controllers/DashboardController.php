@@ -35,10 +35,26 @@ final class DashboardController extends Controller
             ? (int) $priorityValue
             : null;
 
+        $sort = trim(
+            (string) $request->query(
+                'sort',
+                'priority'
+            )
+        );
+
+        $direction = trim(
+            (string) $request->query(
+                'direction',
+                'asc'
+            )
+        );
+
         $projects = $this->service->projects(
             $query,
             $status,
-            $priority
+            $priority,
+            $sort,
+            $direction
         );
 
         return $this->view(
@@ -56,7 +72,8 @@ final class DashboardController extends Controller
                 'query' => $query,
                 'selectedStatus' => $status,
                 'selectedPriority' => $priority,
-            ]
+                'selectedSort' => $sort,
+                'selectedDirection' => $direction,            ]
         );
     }
 }
