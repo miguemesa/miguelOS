@@ -27,6 +27,31 @@ final class ProjectRepository
         );
     }
 
+    public function search(string $query): array
+    {
+        $term = '%' . $query . '%';
+
+        $rows = Database::fetchAll(
+            "
+        SELECT *
+        FROM projects
+        WHERE name LIKE :name_query
+           OR description LIKE :description_query
+        ORDER BY priority,
+                 due_date
+        ",
+            [
+                'name_query' => $term,
+                'description_query' => $term,
+            ]
+        );
+
+        return Hydrator::collection(
+            Project::class,
+            $rows
+        );
+    }
+
     public function create(Project $project): int
     {
         Database::execute(

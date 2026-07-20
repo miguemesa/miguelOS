@@ -17,6 +17,12 @@ $statusClasses = [
     'completed' => 'text-bg-primary',
     'cancelled' => 'text-bg-dark',
 ];
+
+$query = trim(
+    (string) ($query ?? '')
+);
+
+$hasSearch = $query !== '';
 ?>
 
 <div class="mb-4">
@@ -25,13 +31,90 @@ $statusClasses = [
         Panel principal
     </p>
 
-    <h1 class="mb-2">
-        Proyectos
-    </h1>
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
 
-    <p class="lead text-secondary mb-0">
-        Una vista general de los proyectos registrados en MiguelOS.
-    </p>
+        <div>
+
+            <h1 class="mb-2">
+                Proyectos
+            </h1>
+
+            <p class="lead text-secondary mb-0">
+
+                <?php if ($hasSearch): ?>
+
+                    Resultados para
+                    <strong>
+                        “<?= htmlspecialchars(
+                            $query,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>”
+                    </strong>
+
+                <?php else: ?>
+
+                    Una vista general de los proyectos registrados en MiguelOS.
+
+                <?php endif; ?>
+
+            </p>
+
+        </div>
+
+        <form
+                method="get"
+                action="/"
+                class="d-flex gap-2"
+                role="search"
+        >
+
+            <div>
+
+                <label
+                        for="project-search"
+                        class="visually-hidden"
+                >
+                    Buscar proyectos
+                </label>
+
+                <input
+                        type="search"
+                        class="form-control"
+                        id="project-search"
+                        name="q"
+                        value="<?= htmlspecialchars(
+                            $query,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+                        placeholder="Buscar proyectos"
+                        maxlength="150"
+                >
+
+            </div>
+
+            <button
+                    type="submit"
+                    class="btn btn-primary"
+            >
+                Buscar
+            </button>
+
+            <?php if ($hasSearch): ?>
+
+                <a
+                        href="/"
+                        class="btn btn-outline-secondary"
+                >
+                    Limpiar
+                </a>
+
+            <?php endif; ?>
+
+        </form>
+
+    </div>
 
 </div>
 
@@ -41,20 +124,48 @@ $statusClasses = [
 
         <div class="card-body py-5 text-center">
 
-            <h2 class="h4">
-                Todavía no hay proyectos
-            </h2>
+            <?php if ($hasSearch): ?>
 
-            <p class="text-secondary mb-4">
-                Crea el primero para comenzar a organizar tu trabajo.
-            </p>
+                <h2 class="h4">
+                    No encontramos proyectos
+                </h2>
 
-            <a
-                    href="/proyectos/crear"
-                    class="btn btn-primary"
-            >
-                Crear proyecto
-            </a>
+                <p class="text-secondary mb-4">
+                    No hay coincidencias para
+                    <strong>
+                        “<?= htmlspecialchars(
+                            $query,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>”
+                    </strong>.
+                </p>
+
+                <a
+                        href="/"
+                        class="btn btn-outline-primary"
+                >
+                    Ver todos los proyectos
+                </a>
+
+            <?php else: ?>
+
+                <h2 class="h4">
+                    Todavía no hay proyectos
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Crea el primero para comenzar a organizar tu trabajo.
+                </p>
+
+                <a
+                        href="/proyectos/crear"
+                        class="btn btn-primary"
+                >
+                    Crear proyecto
+                </a>
+
+            <?php endif; ?>
 
         </div>
 

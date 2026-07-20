@@ -15,9 +15,15 @@ final class ProjectService
     ) {
     }
 
-    public function projects(): array
+    public function projects(?string $query = null): array
     {
-        return $this->repository->all();
+        $query = trim((string) $query);
+
+        if ($query === '') {
+            return $this->repository->all();
+        }
+
+        return $this->repository->search($query);
     }
 
     public function project(int $id): ?Project

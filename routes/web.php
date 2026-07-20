@@ -10,9 +10,14 @@ use App\Http\Controllers\ProjectController;
 
 /** @var App\Core\Router $router */
 
-$router->get('/', static function (): Response {
-    return (new DashboardController())->index();
-});
+$router->get(
+    '/',
+    static function (Request $request): Response {
+        return (new DashboardController())->index(
+            $request
+        );
+    }
+);
 
 $router->get('/salud', static function (): Response {
     return Response::json([
