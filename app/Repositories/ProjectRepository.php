@@ -141,4 +141,23 @@ final class ProjectRepository
 
         return true;
     }
+
+    public function delete(int $id): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+
+        Database::execute(
+            "
+        DELETE FROM projects
+        WHERE id = :id
+        ",
+            [
+                'id' => $id,
+            ]
+        );
+
+        return true;
+    }
 }

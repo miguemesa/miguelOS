@@ -189,4 +189,19 @@ final class ProjectService
             ? $value
             : 'proyecto';
     }
+
+    public function delete(int $id): bool
+    {
+        if ($id <= 0) {
+            return false;
+        }
+
+        $project = $this->repository->find($id);
+
+        if ($project === null) {
+            return false;
+        }
+
+        return $this->repository->delete($id);
+    }
 }

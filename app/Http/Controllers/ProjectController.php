@@ -138,6 +138,17 @@ final class ProjectController extends Controller
         );
     }
 
+    public function destroy(int $id): Response
+    {
+        $deleted = $this->service->delete($id);
+
+        if (!$deleted) {
+            return $this->notFound();
+        }
+
+        return $this->redirect('/');
+    }
+
     private function formData(Request $request): array
     {
         return [

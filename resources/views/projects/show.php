@@ -39,13 +39,34 @@ $statusLabel = $statusLabels[$project->status]
 
     </div>
 
-    <a
-            href="/proyectos/<?= (int) $project->id ?>/editar"
-            class="btn btn-outline-primary"
-    >
-        Editar proyecto
-    </a>
+    <div class="d-flex gap-2">
 
+        <a
+                href="/proyectos/<?= (int) $project->id ?>/editar"
+                class="btn btn-outline-primary"
+        >
+            Editar proyecto
+        </a>
+
+        <form
+                method="post"
+                action="/proyectos/<?= (int) $project->id ?>/eliminar"
+                onsubmit="return confirm(
+            '¿Eliminar este proyecto? Esta acción no se puede deshacer.'
+        );"
+        >
+
+            <button
+                    type="submit"
+                    class="btn btn-outline-danger"
+            >
+                Eliminar
+            </button>
+
+        </form>
+
+    </div>
+    
 </div>
 
 <hr class="mb-4">

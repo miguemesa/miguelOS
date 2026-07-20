@@ -71,6 +71,18 @@ $router->post(
     }
 );
 
+$router->post(
+    '/proyectos/{id}/eliminar',
+    static function (
+        Request $request,
+        string $id
+    ): Response {
+        return (new ProjectController())->destroy(
+            (int) $id
+        );
+    }
+);
+
 $router->get(
     '/proyectos/{id}',
     static function (
