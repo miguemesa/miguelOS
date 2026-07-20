@@ -33,9 +33,15 @@
         <?php foreach ($projects as $project): ?>
 
             <li>
-
-                <?= htmlspecialchars($project->name) ?>
-
+                <a
+                        href="/proyectos/<?= (int) $project->id ?>"
+                >
+                    <?= htmlspecialchars(
+                        $project->name,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </a>
             </li>
 
         <?php endforeach; ?>
@@ -43,12 +49,3 @@
     </ul>
 
 <?php endif; ?>
-
-<p>
-    <a
-            href="/proyectos/crear"
-            class="btn btn-primary"
-    >
-        Nuevo proyecto
-    </a>
-</p>
