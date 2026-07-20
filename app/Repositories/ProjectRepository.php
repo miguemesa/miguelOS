@@ -57,20 +57,88 @@ final class ProjectRepository
         return Database::lastInsertId();
     }
 
-    public function slugExists(string $slug): bool
+    public function slugExists(
+        string $slug,
+        ?int $ignoreId = null
+    ): bool {
+        $sql = "
+        SELECT id
+        FROM projects
+        WHERE slug = :slug
+    ";
+
+        $parameters = [
+            'slug' => $slug,
+        ];
+
+        if ($ignoreId !== null) {
+            $sql .= "
+            AND id != :ignore_id
+        ";
+
+            $parameters['ignore_id'] = $ignoreId;
+        }
+
+        $sql .= "
+        LIMIT 1
+    ";
+
+        return Database::fetch(
+                $sql,
+                $parameters
+            ) !== null;
+    }
+
+    public function find(int $id): ?Project
     {
         $row = Database::fetch(
             "
-            SELECT id
-            FROM projects
-            WHERE slug = :slug
-            LIMIT 1
-            ",
+        SELECT *
+        FROM projects
+        WHERE id = :id
+        LIMIT 1
+        ",
             [
-                'slug' => $slug,
+                'id' => $id,
             ]
         );
 
-        return $row !== null;
+        if ($row === null) {
+            return null;
+        }
+
+        return Hydrator::make(
+            Project::class,
+            $row
+        );
+    }
+
+    public function update(Project $project): bool
+    {
+        if ($project->id === null) {
+            return false;
+        }
+
+        Database::execute(
+            "
+        UPDATE projects
+        SET name = :name,
+            slug = :slug,
+            description = :description,
+            status = :status,
+            priority = :priority
+        WHERE id = :id
+        ",
+            [
+                'id' => $project->id,
+                'name' => $project->name,
+                'slug' => $project->slug,
+                'description' => $project->description,
+                'status' => $project->status,
+                'priority' => $project->priority,
+            ]
+        );
+
+        return true;
     }
 }

@@ -46,5 +46,39 @@ $router->post(
     }
 );
 
+$router->get(
+    '/proyectos/{id}/editar',
+    static function (
+        Request $request,
+        string $id
+    ): Response {
+        return (new ProjectController())->edit(
+            (int) $id
+        );
+    }
+);
 
+$router->post(
+    '/proyectos/{id}',
+    static function (
+        Request $request,
+        string $id
+    ): Response {
+        return (new ProjectController())->update(
+            $request,
+            (int) $id
+        );
+    }
+);
 
+$router->get(
+    '/proyectos/{id}',
+    static function (
+        Request $request,
+        string $id
+    ): Response {
+        return (new ProjectController())->show(
+            (int) $id
+        );
+    }
+);

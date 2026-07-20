@@ -20,12 +20,83 @@ final class ProjectService
         return $this->repository->all();
     }
 
+    public function project(int $id): ?Project
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        return $this->repository->find($id);
+    }
+
     public function create(array $data): Project
     {
-        $name = trim((string) ($data['name'] ?? ''));
-        $description = trim((string) ($data['description'] ?? ''));
-        $status = (string) ($data['status'] ?? 'idea');
-        $priority = (int) ($data['priority'] ?? 3);
+        $project = new Project();
+
+        $this->fillProject(
+            $project,
+            $data
+        );
+
+        $project->slug = $this->uniqueSlug(
+            $project->name
+        );
+
+        $project->id = $this->repository->create(
+            $project
+        );
+
+        return $project;
+    }
+
+    public function update(
+        int $id,
+        array $data
+    ): ?Project {
+        $project = $this->repository->find($id);
+
+        if ($project === null) {
+            return null;
+        }
+
+        $originalName = $project->name;
+
+        $this->fillProject(
+            $project,
+            $data
+        );
+
+        if ($project->name !== $originalName) {
+            $project->slug = $this->uniqueSlug(
+                $project->name,
+                $project->id
+            );
+        }
+
+        $this->repository->update($project);
+
+        return $project;
+    }
+
+    private function fillProject(
+        Project $project,
+        array $data
+    ): void {
+        $name = trim(
+            (string) ($data['name'] ?? '')
+        );
+
+        $description = trim(
+            (string) ($data['description'] ?? '')
+        );
+
+        $status = (string) (
+            $data['status'] ?? 'idea'
+        );
+
+        $priority = (int) (
+            $data['priority'] ?? 3
+        );
 
         if ($name === '') {
             throw new InvalidArgumentException(
@@ -47,7 +118,11 @@ final class ProjectService
             'cancelled',
         ];
 
-        if (!in_array($status, $allowedStatuses, true)) {
+        if (!in_array(
+            $status,
+            $allowedStatuses,
+            true
+        )) {
             throw new InvalidArgumentException(
                 'El estado seleccionado no es válido.'
             );
@@ -59,28 +134,28 @@ final class ProjectService
             );
         }
 
-        $project = new Project();
-
         $project->name = $name;
-        $project->slug = $this->uniqueSlug($name);
+
         $project->description = $description !== ''
             ? $description
             : null;
+
         $project->status = $status;
         $project->priority = $priority;
-
-        $project->id = $this->repository->create($project);
-
-        return $project;
     }
 
-    private function uniqueSlug(string $name): string
-    {
+    private function uniqueSlug(
+        string $name,
+        ?int $ignoreId = null
+    ): string {
         $baseSlug = $this->slugify($name);
         $slug = $baseSlug;
         $suffix = 2;
 
-        while ($this->repository->slugExists($slug)) {
+        while ($this->repository->slugExists(
+            $slug,
+            $ignoreId
+        )) {
             $slug = $baseSlug . '-' . $suffix;
             $suffix++;
         }

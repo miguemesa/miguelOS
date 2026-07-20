@@ -20,24 +20,131 @@ final class ProjectController extends Controller
     public function create(): Response
     {
         return $this->view(
-            'projects/create',
+            'projects/form',
             [
                 'title' => 'Nuevo proyecto',
+                'project' => null,
                 'errors' => [],
-                'old' => [
-                    'name' => '',
-                    'description' => '',
-                    'status' => 'idea',
-                    'priority' => 3,
-                ],
+                'old' => $this->emptyFormData(),
             ]
         );
     }
 
     public function store(Request $request): Response
     {
-        $data = [
-            'name' => $request->input('name', ''),
+        $data = $this->formData($request);
+
+        try {
+            $project = $this->service->create($data);
+        } catch (InvalidArgumentException $exception) {
+            return $this->view(
+                'projects/form',
+                [
+                    'title' => 'Nuevo proyecto',
+                    'project' => null,
+                    'errors' => [
+                        $exception->getMessage(),
+                    ],
+                    'old' => $data,
+                ],
+                422
+            );
+        }
+
+        return $this->redirect(
+            '/proyectos/' . (int) $project->id
+        );
+    }
+
+    public function show(int $id): Response
+    {
+        $project = $this->service->project($id);
+
+        if ($project === null) {
+            return $this->notFound();
+        }
+
+        return $this->view(
+            'projects/show',
+            [
+                'title' => $project->name,
+                'project' => $project,
+            ]
+        );
+    }
+
+    public function edit(int $id): Response
+    {
+        $project = $this->service->project($id);
+
+        if ($project === null) {
+            return $this->notFound();
+        }
+
+        return $this->view(
+            'projects/form',
+            [
+                'title' => 'Editar ' . $project->name,
+                'project' => $project,
+                'errors' => [],
+                'old' => [
+                    'name' => $project->name,
+                    'description' => $project->description ?? '',
+                    'status' => $project->status,
+                    'priority' => $project->priority,
+                ],
+            ]
+        );
+    }
+
+    public function update(
+        Request $request,
+        int $id
+    ): Response {
+        $project = $this->service->project($id);
+
+        if ($project === null) {
+            return $this->notFound();
+        }
+
+        $data = $this->formData($request);
+
+        try {
+            $updatedProject = $this->service->update(
+                $id,
+                $data
+            );
+        } catch (InvalidArgumentException $exception) {
+            return $this->view(
+                'projects/form',
+                [
+                    'title' => 'Editar ' . $project->name,
+                    'project' => $project,
+                    'errors' => [
+                        $exception->getMessage(),
+                    ],
+                    'old' => $data,
+                ],
+                422
+            );
+        }
+
+        if ($updatedProject === null) {
+            return $this->notFound();
+        }
+
+        return $this->redirect(
+            '/proyectos/' . (int) $updatedProject->id
+        );
+    }
+
+    private function formData(Request $request): array
+    {
+        return [
+            'name' => $request->input(
+                'name',
+                ''
+            ),
             'description' => $request->input(
                 'description',
                 ''
@@ -51,23 +158,27 @@ final class ProjectController extends Controller
                 3
             ),
         ];
+    }
 
-        try {
-            $this->service->create($data);
-        } catch (InvalidArgumentException $exception) {
-            return $this->view(
-                'projects/create',
-                [
-                    'title' => 'Nuevo proyecto',
-                    'errors' => [
-                        $exception->getMessage(),
-                    ],
-                    'old' => $data,
-                ],
-                422
-            );
-        }
+    private function emptyFormData(): array
+    {
+        return [
+            'name' => '',
+            'description' => '',
+            'status' => 'idea',
+            'priority' => 3,
+        ];
+    }
 
-        return $this->redirect('/');
+    private function notFound(): Response
+    {
+        return $this->view(
+            'errors/404',
+            [
+                'title' => 'Proyecto no encontrado',
+                'message' => 'El proyecto solicitado no existe.',
+            ],
+            404
+        );
     }
 }

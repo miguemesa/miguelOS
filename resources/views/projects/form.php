@@ -1,19 +1,63 @@
-<h1>Nuevo proyecto</h1>
+<?php
 
-<p>
-    <a href="/">Volver al inicio</a>
-</p>
+declare(strict_types=1);
+
+$isEditing = isset($project) && $project !== null;
+
+$formAction = $isEditing
+    ? '/proyectos/' . (int) $project->id
+    : '/proyectos';
+
+$heading = $isEditing
+    ? 'Editar proyecto'
+    : 'Nuevo proyecto';
+
+$cancelUrl = $isEditing
+    ? '/proyectos/' . (int) $project->id
+    : '/';
+?>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h1 class="mb-1">
+            <?= htmlspecialchars(
+                $heading,
+                ENT_QUOTES,
+                'UTF-8'
+            ) ?>
+        </h1>
+
+        <?php if ($isEditing): ?>
+
+            <p class="text-secondary mb-0">
+                Modifica la información del proyecto.
+            </p>
+
+        <?php else: ?>
+
+            <p class="text-secondary mb-0">
+                Registra un nuevo proyecto en MiguelOS.
+            </p>
+
+        <?php endif; ?>
+
+    </div>
+
+</div>
 
 <?php if (!empty($errors)): ?>
 
     <div class="alert alert-danger">
+
         <ul class="mb-0">
 
             <?php foreach ($errors as $error): ?>
 
                 <li>
                     <?= htmlspecialchars(
-                        $error,
+                        (string) $error,
                         ENT_QUOTES,
                         'UTF-8'
                     ) ?>
@@ -22,11 +66,16 @@
             <?php endforeach; ?>
 
         </ul>
+
     </div>
 
 <?php endif; ?>
 
-<form method="post" action="/proyectos">
+<form method="post" action="<?= htmlspecialchars(
+    $formAction,
+    ENT_QUOTES,
+    'UTF-8'
+) ?>">
 
     <div class="mb-3">
 
@@ -35,17 +84,17 @@
         </label>
 
         <input
-            type="text"
-            class="form-control"
-            id="name"
-            name="name"
-            maxlength="150"
-            required
-            value="<?= htmlspecialchars(
-                (string) ($old['name'] ?? ''),
-                ENT_QUOTES,
-                'UTF-8'
-            ) ?>"
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                maxlength="150"
+                required
+                value="<?= htmlspecialchars(
+                    (string) ($old['name'] ?? ''),
+                    ENT_QUOTES,
+                    'UTF-8'
+                ) ?>"
         >
 
     </div>
@@ -57,10 +106,10 @@
         </label>
 
         <textarea
-            class="form-control"
-            id="description"
-            name="description"
-            rows="5"
+                class="form-control"
+                id="description"
+                name="description"
+                rows="5"
         ><?= htmlspecialchars(
                 (string) ($old['description'] ?? ''),
                 ENT_QUOTES,
@@ -82,13 +131,13 @@
         ?>
 
         <select
-            class="form-select"
-            id="status"
-            name="status"
+                class="form-select"
+                id="status"
+                name="status"
         >
 
             <option
-                value="idea"
+                    value="idea"
                 <?= $selectedStatus === 'idea'
                     ? 'selected'
                     : '' ?>
@@ -97,7 +146,7 @@
             </option>
 
             <option
-                value="active"
+                    value="active"
                 <?= $selectedStatus === 'active'
                     ? 'selected'
                     : '' ?>
@@ -106,7 +155,7 @@
             </option>
 
             <option
-                value="paused"
+                    value="paused"
                 <?= $selectedStatus === 'paused'
                     ? 'selected'
                     : '' ?>
@@ -115,7 +164,7 @@
             </option>
 
             <option
-                value="completed"
+                    value="completed"
                 <?= $selectedStatus === 'completed'
                     ? 'selected'
                     : '' ?>
@@ -124,7 +173,7 @@
             </option>
 
             <option
-                value="cancelled"
+                    value="cancelled"
                 <?= $selectedStatus === 'cancelled'
                     ? 'selected'
                     : '' ?>
@@ -136,22 +185,22 @@
 
     </div>
 
-    <div class="mb-3">
+    <div class="mb-4">
 
         <label for="priority" class="form-label">
             Prioridad
         </label>
 
         <select
-            class="form-select"
-            id="priority"
-            name="priority"
+                class="form-select"
+                id="priority"
+                name="priority"
         >
 
             <?php for ($priority = 1; $priority <= 5; $priority++): ?>
 
                 <option
-                    value="<?= $priority ?>"
+                        value="<?= $priority ?>"
                     <?= (int) ($old['priority'] ?? 3) === $priority
                         ? 'selected'
                         : '' ?>
@@ -165,8 +214,25 @@
 
     </div>
 
-    <button type="submit" class="btn btn-primary">
-        Guardar proyecto
-    </button>
+    <div class="d-flex gap-2">
+
+        <button type="submit" class="btn btn-primary">
+            <?= $isEditing
+                ? 'Guardar cambios'
+                : 'Guardar proyecto' ?>
+        </button>
+
+        <a
+                href="<?= htmlspecialchars(
+                    $cancelUrl,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ) ?>"
+                class="btn btn-outline-secondary"
+        >
+            Cancelar
+        </a>
+
+    </div>
 
 </form>
