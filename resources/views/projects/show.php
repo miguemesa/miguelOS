@@ -2,44 +2,7 @@
 
 declare(strict_types=1);
 
-function formatProjectDate(?string $value): string
-{
-    if ($value === null || trim($value) === '') {
-        return 'Sin definir';
-    }
-
-    $date = DateTimeImmutable::createFromFormat(
-        'Y-m-d',
-        $value
-    );
-
-    if ($date === false) {
-        return $value;
-    }
-
-    $months = [
-        1 => 'ene',
-        2 => 'feb',
-        3 => 'mar',
-        4 => 'abr',
-        5 => 'may',
-        6 => 'jun',
-        7 => 'jul',
-        8 => 'ago',
-        9 => 'sep',
-        10 => 'oct',
-        11 => 'nov',
-        12 => 'dic',
-    ];
-
-    return sprintf(
-        '%d %s %d',
-        (int)$date->format('j'),
-        $months[(int)$date->format('n')],
-        (int)$date->format('Y')
-    );
-}
-
+use App\Support\ProjectPresenter;
 
 $statusLabels = [
     'idea' => 'Idea',
@@ -185,7 +148,7 @@ $statusLabel = $statusLabels[$project->status]
 
                     <dd class="mb-3">
                         <?= htmlspecialchars(
-                            formatProjectDate(
+                            ProjectPresenter::formatDate(
                                 $project->start_date
                             ),
                             ENT_QUOTES,
@@ -199,7 +162,7 @@ $statusLabel = $statusLabels[$project->status]
 
                     <dd class="mb-3">
                         <?= htmlspecialchars(
-                            formatProjectDate(
+                            ProjectPresenter::formatDate(
                                 $project->due_date
                             ),
                             ENT_QUOTES,
