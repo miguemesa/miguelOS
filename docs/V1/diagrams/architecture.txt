@@ -1,0 +1,29 @@
+HTTP
+  |
+  v
+Router
+  |
+  v
+Controller
+  |
+  v
+Service ------> EventService
+  |                 |
+  v                 v
+Repository     EventRepository
+  |                 |
+  +--------+--------+
+           |
+           v
+        Database
+
+Model
+  |
+  v
+Presenter
+  |
+  v
+Component
+  |
+  v
+View
