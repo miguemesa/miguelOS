@@ -64,11 +64,14 @@ final class ProjectController extends Controller
             return $this->notFound();
         }
 
+        $history = $this->service->history($id);
+
         return $this->view(
             'projects/show',
             [
                 'title' => $project->name,
                 'project' => $project,
+                'history' => $history,
             ]
         );
     }

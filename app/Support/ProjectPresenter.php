@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Models\Project;
 use DateTimeImmutable;
-
 final class ProjectPresenter
 {
     private const MONTHS = [
@@ -42,6 +42,109 @@ final class ProjectPresenter
             self::MONTHS[(int) $date->format('n')],
             (int) $date->format('Y')
         );
+    }
+
+    public static function deadline(
+        Project $project
+    ): array {
+        if ($project->due_date === null) {
+            return [
+                'label' => 'Sin fecha límite',
+                'badge_class' => 'text-bg-secondary',
+                'days' => null,
+                'state' => 'none',
+            ];
+        }
+
+        $dueDate = self::createDate(
+            $project->due_date
+        );
+
+        if ($dueDate === null) {
+            return [
+                'label' => 'Fecha límite inválida',
+                'badge_class' => 'text-bg-secondary',
+                'days' => null,
+                'state' => 'invalid',
+            ];
+        }
+
+        if (in_array(
+            $project->status,
+            ['completed', 'archived'],
+            true
+        )) {
+            return [
+                'label' => $project->status === 'completed'
+                    ? 'Proyecto completado'
+                    : 'Proyecto archivado',
+                'badge_class' => 'text-bg-secondary',
+                'days' => null,
+                'state' => $project->status,
+            ];
+        }
+
+        $today = new DateTimeImmutable('today');
+
+        $days = (int) $today
+            ->diff($dueDate)
+            ->format('%r%a');
+
+        if ($days < 0) {
+            $elapsedDays = abs($days);
+
+            return [
+                'label' => $elapsedDays === 1
+                    ? 'Vencido hace 1 día'
+                    : sprintf(
+                        'Vencido hace %d días',
+                        $elapsedDays
+                    ),
+                'badge_class' => 'text-bg-danger',
+                'days' => $days,
+                'state' => 'overdue',
+            ];
+        }
+
+        if ($days === 0) {
+            return [
+                'label' => 'Vence hoy',
+                'badge_class' => 'text-bg-danger',
+                'days' => 0,
+                'state' => 'today',
+            ];
+        }
+
+        if ($days === 1) {
+            return [
+                'label' => 'Vence mañana',
+                'badge_class' => 'text-bg-warning',
+                'days' => 1,
+                'state' => 'tomorrow',
+            ];
+        }
+
+        if ($days <= 7) {
+            return [
+                'label' => sprintf(
+                    'Vence en %d días',
+                    $days
+                ),
+                'badge_class' => 'text-bg-warning',
+                'days' => $days,
+                'state' => 'soon',
+            ];
+        }
+
+        return [
+            'label' => sprintf(
+                'Restan %d días',
+                $days
+            ),
+            'badge_class' => 'text-bg-success',
+            'days' => $days,
+            'state' => 'future',
+        ];
     }
 
     private static function createDate(

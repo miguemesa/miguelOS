@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Support\ProjectPresenter;
+use App\View\Component;
+use App\Support\EventPresenter;
 
 $statusLabels = [
     'idea' => 'Idea',
@@ -191,5 +193,20 @@ $statusLabel = $statusLabels[$project->status]
         </aside>
 
     </div>
+
+    <section class="mt-5">
+
+        <h2 class="h4 mb-4">
+            Historial
+        </h2>
+
+        <?= Component::render(
+            'timeline',
+            [
+                'events' => $history,
+            ]
+        ) ?>
+
+    </section>
 
 </div>

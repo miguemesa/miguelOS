@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Domain\EntityType;
+use App\Domain\EventType;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use DateTimeImmutable;
@@ -12,7 +14,8 @@ use InvalidArgumentException;
 final class ProjectService
 {
     public function __construct(
-        private readonly ProjectRepository $repository = new ProjectRepository()
+        private readonly ProjectRepository $repository = new ProjectRepository(),
+        private readonly EventService $eventService = new EventService()
     ) {
     }
 
@@ -109,6 +112,21 @@ final class ProjectService
             $project
         );
 
+        $this->eventService->record(
+            EntityType::PROJECT,
+            $project->id,
+            EventType::CREATED,
+            null,
+            null,
+            'Proyecto creado.',
+            [
+                'name' => $project->name,
+                'slug' => $project->slug,
+                'status' => $project->status,
+                'priority' => $project->priority,
+            ]
+        );
+
         return $project;
     }
 
@@ -122,14 +140,22 @@ final class ProjectService
             return null;
         }
 
-        $originalName = $project->name;
+        $original = [
+            'name' => $project->name,
+            'slug' => $project->slug,
+            'description' => $project->description,
+            'status' => $project->status,
+            'priority' => $project->priority,
+            'start_date' => $project->start_date,
+            'due_date' => $project->due_date,
+        ];
 
         $this->fillProject(
             $project,
             $data
         );
 
-        if ($project->name !== $originalName) {
+        if ($project->name !== $original['name']) {
             $project->slug = $this->uniqueSlug(
                 $project->name,
                 $project->id
@@ -138,7 +164,72 @@ final class ProjectService
 
         $this->repository->update($project);
 
+        if ($project->status !== $original['status']) {
+            $this->eventService->record(
+                EntityType::PROJECT,
+                $project->id,
+                EventType::STATUS_CHANGED,
+                $original['status'],
+                $project->status,
+                'Estado del proyecto actualizado.'
+            );
+        }
+
+        if ($project->priority !== $original['priority']) {
+            $this->eventService->record(
+                EntityType::PROJECT,
+                $project->id,
+                EventType::PRIORITY_CHANGED,
+                (string) $original['priority'],
+                (string) $project->priority,
+                'Prioridad del proyecto actualizada.'
+            );
+        }
+
+        $updatedFields = [];
+
+        foreach ([
+                     'name',
+                     'slug',
+                     'description',
+                     'start_date',
+                     'due_date',
+                 ] as $field) {
+            if ($project->{$field} !== $original[$field]) {
+                $updatedFields[$field] = [
+                    'from' => $original[$field],
+                    'to' => $project->{$field},
+                ];
+            }
+        }
+
+        if ($updatedFields !== []) {
+            $this->eventService->record(
+                EntityType::PROJECT,
+                $project->id,
+                EventType::UPDATED,
+                null,
+                null,
+                'Información del proyecto actualizada.',
+                [
+                    'changed_fields' => $updatedFields,
+                ]
+            );
+        }
+
         return $project;
+    }
+
+
+    /**
+     * @return array<Event>
+     */
+    public function history(int $projectId): array
+    {
+        return $this->eventService->history(
+            EntityType::PROJECT,
+            $projectId
+        );
     }
 
     private function fillProject(
