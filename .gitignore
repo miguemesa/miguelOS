@@ -1,15 +1,24 @@
 /vendor/
-/storage/cache/*
-/storage/logs/*
 .env
 .DS_Store
 .idea/
-/docs/backups/
-!/storage/logs/.gitkeep
-!/storage/cache/.gitkeep
+
+# Documentación y respaldos
+/docs/backups/*
+!/docs/backups/.gitkeep
+
 /database/backups/*
 !/database/backups/.gitkeep
+
+# Storage generado
+/storage/cache/*
+!/storage/cache/.gitkeep
+
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+
 *.log
 /test-task-validation.php
-/storage/*
-!/storage/.gitkeep
