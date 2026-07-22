@@ -1,7 +1,25 @@
 <?php
 
 declare(strict_types=1);
+
 use App\Support\ProjectPresenter;
+
+/**
+ * @var array<int, \App\Models\Project> $projects
+ * @var array{
+ *     total: int,
+ *     idea: int,
+ *     active: int,
+ *     paused: int,
+ *     completed: int,
+ *     archived: int,
+ *     overdue: int,
+ *     due_today: int,
+ *     due_tomorrow: int,
+ *     due_soon: int,
+ *     without_deadline: int
+ * } $summary
+ */
 
 $statusLabels = [
     'idea' => 'Idea',
@@ -53,7 +71,82 @@ $hasCustomOrder = $selectedSort !== 'priority'
 $hasDashboardOptions = $hasCriteria
     || $hasCustomOrder;
 
+$captureError = isset($captureError)
+    ? trim((string) $captureError)
+    : '';
+
+$captureTitle = isset($captureTitle)
+    ? trim((string) $captureTitle)
+    : '';
+
 ?>
+
+<section
+        class="card border-0 shadow-sm mb-4"
+        aria-labelledby="quick-capture-title"
+>
+    <div class="card-body">
+        <p
+                id="quick-capture-title"
+                class="text-uppercase text-secondary small mb-2"
+        >
+            Captura rápida
+        </p>
+
+        <?php if ($captureError !== ''): ?>
+            <div
+                    class="alert alert-danger py-2 mb-3"
+                    role="alert"
+            >
+                <?= htmlspecialchars(
+                    $captureError,
+                    ENT_QUOTES,
+                    'UTF-8'
+                ) ?>
+            </div>
+        <?php endif; ?>
+
+        <form
+                method="post"
+                action="/capturar"
+                class="d-flex flex-column flex-sm-row gap-2"
+        >
+            <div class="flex-grow-1">
+                <label
+                        for="quick-capture-title-input"
+                        class="visually-hidden"
+                >
+                    Nueva captura
+                </label>
+
+                <input
+                        type="text"
+                        class="form-control"
+                        id="quick-capture-title-input"
+                        name="title"
+                        value="<?= htmlspecialchars(
+                            $captureTitle,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+                        placeholder="Escribe una idea, tarea o pendiente..."
+                        maxlength="220"
+                        required
+                        autofocus
+                        autocomplete="off"
+                >
+            </div>
+
+            <button
+                    type="submit"
+                    class="btn btn-primary px-4"
+                    title="Se guardará en la bandeja de entrada de Tareas"
+            >
+                Capturar
+            </button>
+        </form>
+    </div>
+</section>
 
 <div class="mb-4">
 
@@ -95,9 +188,9 @@ $hasDashboardOptions = $hasCriteria
 
                 <?php else: ?>
 
-                    Una vista general de los proyectos registrados en MiguelOS.
 
                 <?php endif; ?>
+
 
             </p>
 
@@ -395,6 +488,74 @@ $hasDashboardOptions = $hasCriteria
     </div>
 
 <?php else: ?>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Total</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['total'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Activos</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['active'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Pausados</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['paused'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Vencidos</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['overdue'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Próximos</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['due_soon'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4 col-xl-2">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small">Sin fecha</div>
+                    <div class="fs-3 fw-semibold">
+                        <?= $summary['without_deadline'] ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
 

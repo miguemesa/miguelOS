@@ -4,3 +4,12 @@
 .env
 .DS_Store
 .idea/
+/docs/backups/
+!/storage/logs/.gitkeep
+!/storage/cache/.gitkeep
+/database/backups/*
+!/database/backups/.gitkeep
+*.log
+/test-task-validation.php
+/storage/*
+!/storage/.gitkeep
